@@ -5,6 +5,8 @@ include("./funcs.php");
 
 // 1. セッションチェック
 checkSession("./login.php");
+$lId = $_SESSION["id"];
+$lName = $_SESSION["u_name"];
 
 // 2. id の定義
 $bookId12 = $_GET['book_id'];
@@ -20,19 +22,19 @@ if ($statusOrder == false) {
 } else {
     $resultOrder = $stmtOrder->fetch(PDO::FETCH_ASSOC);
     $orderJSON = $resultOrder['order'];
-    $orderAry = json_decode($orderJSON, true);
 }
 
 // 3-1. Books
 $pdoBooks = db_conn();
-$stmtBooks = $pdoBooks->prepare(
-    "SELECT * FROM gs_bm_books WHERE id = $bookId12"
-);
+$sqlBooks = "SELECT * FROM gs_bm_books WHERE id = $bookId12";
+$stmtBooks = $pdoBooks->prepare($sqlBooks);
 $statusBooks = $stmtBooks->execute();
 if ($statusBooks == false) {
     sql_error($stmt);
 } else {
     $resultBooks = $stmtBooks->fetch(PDO::FETCH_ASSOC);
+    checkOwner($resultBooks['owner_id']);
+
     $hBookName = h($resultBooks['name']);
     $hBookUrl = h($resultBooks['url']);
     $hBookMemo = h($resultBooks['content']);
@@ -46,9 +48,8 @@ $hBookCoverImg = h($bookCoverImg);
 
 // 3-2. DogEarOrder
 $pdoDogEarOrder = db_conn();
-$stmtDogEarOrder = $pdoDogEarOrder->prepare(
-    "SELECT `order` FROM gs_bm_order WHERE book_id = $bookId12"
-);
+$sqlDogEarOrder = "SELECT `order` FROM gs_bm_order WHERE book_id = $bookId12";
+$stmtDogEarOrder = $pdoDogEarOrder->prepare($sqlDogEarOrder);
 $statusDogEarOrder = $stmtDogEarOrder->execute();
 if ($statusDogEarOrder == false) {
     sql_error($stmtDogEarOrder);
@@ -60,9 +61,8 @@ if ($statusDogEarOrder == false) {
 
 // 3-3. DogEar
 $pdoDogEar = db_conn();
-$stmtDogEar = $pdoDogEar->prepare(
-    "SELECT * FROM gs_bm_dog_ear WHERE book_id = $bookId12"
-);
+$sqlDogEar = "SELECT * FROM gs_bm_dog_ear WHERE book_id = $bookId12";
+$stmtDogEar = $pdoDogEar->prepare($sqlDogEar);
 $statusDogEar = $stmtDogEar->execute();
 $view = "";
 $resAry = array();

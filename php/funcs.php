@@ -53,10 +53,17 @@ $tagNameToDogEarTableColumn = array(
 
 function checkSession($location)
 {
-    if (!isset($_SESSION["chk_ssid"]) || $_SESSION["chk_ssid"] != session_id()) {
+    if (!isset($_SESSION["chk_ssid"]) || !isset($_SESSION["id"]) || !isset($_SESSION["u_name"]) || $_SESSION["chk_ssid"] != session_id()) {
         redirect("$location?err=session_err");
     } else {
         session_regenerate_id(true);
         $_SESSION["chk_ssid"] = session_id();
+    }
+}
+
+function checkOwner($ownerId)
+{
+    if (!isset($_SESSION["id"]) || $_SESSION["id"] != $ownerId) {
+        redirect("../");
     }
 }
